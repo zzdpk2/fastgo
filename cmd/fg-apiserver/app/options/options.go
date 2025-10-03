@@ -4,32 +4,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
-	"time"
 )
-
-// MySQLOptions defines options for mysql database
-type MySQLOptions struct {
-	Addr                  string        `json:"addr,omitempty"`
-	Username              string        `json:"username,omitempty"`
-	Password              string        `json:"-" mapstructure:"password"`
-	Database              string        `json:"database" mapstructure:"database"`
-	MaxIdleConnections    int           `json:"max-idle-connections,omitempty" mapstructure:"max-idle-connections,omitempty"`
-	MaxOpenConnections    int           `json:"max-open-connections,omitempty" mapstructure:"max-open-connections"`
-	MaxConnectionLifeTime time.Duration `json:"max-connection-life-time,omitempty" mapstructure:"max-connection-life-time"`
-}
-
-// NewMySQLOptions create a zero value instance
-func NewMySQLOptions() *MySQLOptions {
-	return &MySQLOptions{
-		Addr:                  "127.0.0.1:3306",
-		Username:              "onex",
-		Password:              "onex(#)666",
-		Database:              "onex",
-		MaxIdleConnections:    100,
-		MaxOpenConnections:    100,
-		MaxConnectionLifeTime: time.Duration(10) * time.Second,
-	}
-}
 
 type ServerOptions struct {
 	MySQLOptions *MySQLOptions `json:"mysql" mapstructure:"mysql"`
