@@ -1,8 +1,6 @@
 package app
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/onexstack/fastgo/cmd/fg-apiserver/app/options"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -20,19 +18,7 @@ func NewFastGOCommand() *cobra.Command {
 		learn Go project development.`,
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := viper.Unmarshal(opts); err != nil {
-				return err
-			}
-
-			if err := opts.Validate(); err != nil {
-				return err
-			}
-
-			fmt.Printf("Read MySQL host from Viper: %s\n\n", viper.GetString("mysql.host"))
-
-			jsonData, _ := json.MarshalIndent(opts, "", " ")
-			fmt.Println(string(jsonData))
-			return nil
+			return run(opts)
 		},
 		Args: cobra.NoArgs,
 	}
@@ -43,4 +29,31 @@ func NewFastGOCommand() *cobra.Command {
 		"Path to the fg-apiserver configuration file.")
 
 	return cmd
+}
+
+// run function is the main running logic
+func run(opts *options.ServerOptions) error {
+	if err := viper.Unmarshal(opts); err != nil {
+		return err
+	}
+
+	if err := opts.Validate(); err != nil {
+		return err
+	}
+
+	// Fetch the configurations of the program
+	// Split the commandline configs and program configurations
+	cfg, err := opts.Config()
+	if err != nil {
+		return err
+	}
+
+	// Create an instance of the program
+	server, err := cfg.NewServer()
+	if err != nil {
+		return err
+	}
+
+	// Start the server
+	return server.Run()
 }
