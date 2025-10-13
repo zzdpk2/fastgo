@@ -1,0 +1,90 @@
+package version
+
+import (
+	"fmt"
+	flag "github.com/spf13/pflag"
+	"os"
+	"strconv"
+)
+
+type versionValue int
+
+const (
+	VersionNotSet versionValue = 0
+
+	VersionEnabled versionValue = 1
+
+	VersionRaw versionValue = 2
+)
+
+const strRawVersion string = "raw"
+
+func (v *versionValue) IsBoolFlag() bool {
+	return true
+}
+
+func (v *versionValue) Get() any {
+	return *v
+}
+
+func (v *versionValue) Set(s string) error {
+	if s == strRawVersion {
+		*v = VersionRaw
+		return nil
+	}
+	boolVal, err := strconv.ParseBool(s)
+	if boolVal {
+		*v = VersionEnabled
+	} else {
+		*v = VersionNotSet
+	}
+	return err
+}
+
+func (v *versionValue) String() string {
+	if *v == VersionRaw {
+		return strRawVersion
+	}
+	return fmt.Sprintf("%v", bool(*v == VersionEnabled))
+}
+
+// Type of the flag as required by the pflag.Value interface.
+func (v *versionValue) Type() string {
+	return "version"
+}
+
+func VersionVar(p *versionValue, name string, value versionValue, usage string) {
+	*p = value
+	flag.Var(p, name, usage)
+	// "--version" will be treated as "--version=true"
+	flag.Lookup(name).NoOptDefVal = "true"
+}
+
+func Version(name string, value versionValue, usage string) *versionValue {
+	p := new(versionValue)
+	VersionVar(p, name, value, usage)
+	return p
+}
+
+const versionFlagName = "version"
+
+var versionFlag = Version(versionFlagName, VersionNotSet, "Print version information and quit")
+
+// AddFlags registers this package's flags on arbitrary FlagSets, such that they point to the
+// same value as the global flags.
+func AddFlags(fs *flag.FlagSet) {
+	fs.AddFlag(flag.Lookup(versionFlagName))
+}
+
+// PrintAndExitIfRequested will check if the -version flag was passed
+// and, if so, print the version and exit.
+func PrintAndExitIfRequested() {
+	// Check the value of flag and print the version info
+	if *versionFlag == VersionRaw {
+		fmt.Printf("%s\n", Get().Text())
+		os.Exit(0)
+	} else if *versionFlag == VersionEnabled {
+		fmt.Printf("%s\n", Get().String())
+		os.Exit(0)
+	}
+}

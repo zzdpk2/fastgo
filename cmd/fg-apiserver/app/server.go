@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/onexstack/fastgo/cmd/fg-apiserver/app/options"
+	"github.com/onexstack/fastgo/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -27,12 +28,14 @@ func NewFastGOCommand() *cobra.Command {
 
 	cmd.PersistentFlags().StringVarP(&configFile, "config", "c", filePath(),
 		"Path to the fg-apiserver configuration file.")
-
+	version.AddFlags(cmd.PersistentFlags())
 	return cmd
 }
 
 // run function is the main running logic
 func run(opts *options.ServerOptions) error {
+
+	version.PrintAndExitIfRequested()
 	if err := viper.Unmarshal(opts); err != nil {
 		return err
 	}
