@@ -5,6 +5,9 @@ import (
 	"github.com/onexstack/fastgo/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io"
+	"log/slog"
+	"os"
 )
 
 var configFile string
@@ -36,6 +39,10 @@ func NewFastGOCommand() *cobra.Command {
 func run(opts *options.ServerOptions) error {
 
 	version.PrintAndExitIfRequested()
+
+	// init slog
+	initLog()
+
 	if err := viper.Unmarshal(opts); err != nil {
 		return err
 	}
@@ -59,4 +66,61 @@ func run(opts *options.ServerOptions) error {
 
 	// Start the server
 	return server.Run()
+}
+
+func initLog() {
+	// Log settings
+	format := viper.GetString("log.format")
+	level := viper.GetString("log.level")
+	output := viper.GetString("log.output")
+
+	var slevel slog.Level
+	switch level {
+	case "debug":
+		slevel = slog.LevelDebug
+	case "info":
+		slevel = slog.LevelInfo
+	case "warn":
+		slevel = slog.LevelWarn
+	case "error":
+		slevel = slog.LevelError
+	default:
+		slevel = slog.LevelInfo
+	}
+
+	opts := &slog.HandlerOptions{Level: slevel}
+
+	var w io.Writer
+	var err error
+
+	// Switch log output path
+	switch output {
+	case "":
+		w = os.Stdout
+	case "stdout":
+		w = os.Stdout
+	default:
+		w, err = os.OpenFile(output, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// Reformat the log
+	if err != nil {
+		return
+	}
+
+	var handler slog.Handler
+	switch format {
+	case "json":
+		handler = slog.NewJSONHandler(w, opts)
+	case "text":
+		handler = slog.NewTextHandler(w, opts)
+	default:
+		handler = slog.NewJSONHandler(w, opts)
+	}
+
+	// Set the log instance to a global scope
+	slog.SetDefault(slog.New(handler))
 }

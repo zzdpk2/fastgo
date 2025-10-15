@@ -2,8 +2,8 @@ package apiserver
 
 import (
 	"context"
-	"fmt"
 	genericoptions "github.com/onexstack/fastgo/pkg/options"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -23,7 +23,8 @@ func (cfg *Config) NewServer() (*Server, error) {
 }
 
 func (s *Server) Run() error {
-	fmt.Printf("Read MySQL host from config: %s\n", s.cfg.MySQLOptions.Addr)
+	//fmt.Printf("Read MySQL host from config: %s\n", s.cfg.MySQLOptions.Addr)
+	slog.Info("Read MySQL host from config", "mysql.addr", s.cfg.MySQLOptions.Addr)
 	// Block to prevent the program from quitting
 	// select {}
 	// block until receive Ctrl+C / kill（TERM）

@@ -6,3 +6,8 @@ mysql:
   max-idle-connections: 100
   max-open-connections: 100
   max-connection-life-time: 10s
+
+log:
+  format: text
+  level: info
+  output: stdout
