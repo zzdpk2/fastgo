@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/gin-gonic/gin"
+	mw "github.com/onexstack/fastgo/internal/pkg/middleware"
 	genericoptions "github.com/onexstack/fastgo/pkg/options"
 	"log/slog"
 	"net/http"
@@ -26,6 +27,9 @@ type Server struct {
 func (cfg *Config) NewServer() (*Server, error) {
 	engine := gin.New()
 
+	// the middleware gin.Recovery() to catch panic and have it recover
+	mws := []gin.HandlerFunc{gin.Recovery(), mw.NoCache, mw.Cors, mw.RequestID()}
+	engine.Use(mws...)
 	// Register 404 Handler
 	engine.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{
