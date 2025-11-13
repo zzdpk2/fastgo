@@ -22,4 +22,16 @@ var (
 		Reason:  "NotFound",
 		Message: "Resources not found",
 	}
+
+	ErrDBRead = &ErrorX{
+		Code:    http.StatusInternalServerError,
+		Reason:  "InternalError.DBRead",
+		Message: "Database read failure.",
+	}
+
+	ErrDBWrite = &ErrorX{
+		Code:    http.StatusInternalServerError,
+		Reason:  "InternalError.DBWrite",
+		Message: "Database write failure.",
+	}
 )
