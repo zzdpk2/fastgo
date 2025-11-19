@@ -51,6 +51,15 @@ func (s *postStore) Delete(ctx context.Context, opts *where.Options) error {
 	return nil
 }
 
+func (s *postStore) Update(ctx context.Context, obj *model.Post) error {
+	if err := s.store.DB(ctx).Save(obj).Error; err != nil {
+		slog.Error("Failed to update post in database", "err", err, "post", obj)
+		return errorsx.ErrDBWrite.WithMessage(err.Error())
+	}
+
+	return nil
+}
+
 func (s *postStore) Get(ctx context.Context, opts *where.Options) (*model.Post, error) {
 	var obj model.Post
 	if err := s.store.DB(ctx, opts).First(&obj).Error; err != nil {

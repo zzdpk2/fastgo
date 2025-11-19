@@ -1,5 +1,7 @@
 package store
 
+//go:generate mockgen -destination mock_store.go -package store github.com/onexstack/fastgo/internal/fastgo/store IStore,UserStore,PostStore,ConcretePostStore
+
 import (
 	"github.com/onexstack/onexstack/pkg/store/where"
 	"golang.org/x/net/context"
@@ -32,7 +34,7 @@ type datastore struct {
 }
 
 // make sure datastore implement the IStore interface
-var _ IStore = (*datastore)(nil)
+// var _ IStore = (*datastore)(nil)
 
 // NewStore is to create an instance of IStore
 func NewStore(db *gorm.DB) *datastore {

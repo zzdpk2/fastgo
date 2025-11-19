@@ -15,7 +15,7 @@ type UserStore interface {
 	Update(ctx context.Context, obj *model.User) error
 	Delete(ctx context.Context, obj *where.Options) error
 	Get(ctx context.Context, opts *where.Options) (*model.User, error)
-	List(ctx context.Context, opts *where.Options) ([]*model.User, error)
+	List(ctx context.Context, opts *where.Options) (int64, []*model.User, error)
 
 	UserExpansion
 }
